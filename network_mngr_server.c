@@ -6,6 +6,8 @@
 
 #include "network_mngr.h"
 
+#define MAX_LEN 100
+
 char **
 user_logins_1_svc(void *argp, struct svc_req *rqstp)
 {
@@ -21,13 +23,33 @@ user_logins_1_svc(void *argp, struct svc_req *rqstp)
 char **
 date_1_svc(long *argp, struct svc_req *rqstp)
 {
-	static char * result;
+  struct tm *timeptr;
+  time_t clock;
+  static char *ptr;
+  static char err[] = "Invalid Response \0";
+  static char s[MAX_LEN];
 
-	/*
-	 * insert server code here
-	 */
+  clock = time(0);
+  timeptr = localtime(&clock);
+  switch(*argp)
+  {
+  case 1:strftime(s,MAX_LEN,"%A, %B %d, %Y",timeptr);
+    ptr=s;
+    break;
 
-	return &result;
+  case 2:strftime(s,MAX_LEN,"%T",timeptr);
+    ptr=s;
+    break;
+  
+  case 3:strftime(s,MAX_LEN,"%A, %B %d, %Y - %T",timeptr);
+    ptr=s;
+    break;
+
+  default: ptr=err;
+    break;
+  }
+
+  return(&ptr);
 }
 
 double *
