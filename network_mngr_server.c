@@ -8,6 +8,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <sys/sysinfo.h>
 
 #define MAX_LEN 100
 
@@ -85,13 +86,20 @@ cpu_usage_1_svc(void *argp, struct svc_req *rqstp)
 double *
 mem_usage_1_svc(void *argp, struct svc_req *rqstp)
 {
-	static double  result;
+	static double  percentageMemoryUsed;
+	
+	struct sysinfo systemInfo;
+	sysinfo(&systemInfo);
 
-	/*
-	 * insert server code here
-	 */
+	unsigned long totalSystemMemory = systemInfo.totalram;
+	unsigned long availableMemory = systemInfo.freeram;
+	double percentageMemoryFree;
 
-	return &result;
+	percentageMemoryFree = ((double) availableMemory/ (double) totalSystemMemory);
+	percentageMemoryFree *= 100;
+
+	percentageMemoryUsed = 100 - percentageMemoryFree;
+	return &percentageMemoryUsed;
 }
 
 double *
