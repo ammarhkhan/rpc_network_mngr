@@ -105,13 +105,15 @@ mem_usage_1_svc(void *argp, struct svc_req *rqstp)
 double *
 load_procs_per_min_1_svc(void *argp, struct svc_req *rqstp)
 {
-	static double  result;
+	static double  processLoadedPerMin;
 
-	/*
-	 * insert server code here
-	 */
+	struct sysinfo systemInfo;
+	sysinfo(&systemInfo);
 
-	return &result;
+	unsigned long procsLoadedOverLastMinute = systemInfo.loads[0];
+	processLoadedPerMin = (double) procsLoadedOverLastMinute;
+
+	return &processLoadedPerMin;
 }
 
 system_statistics *
