@@ -5,7 +5,9 @@
  */
 
 #include "network_mngr.h"
-#include<time.h>
+#include <time.h>
+#include <stdio.h>
+#include <unistd.h>
 
 #define MAX_LEN 100
 
@@ -56,13 +58,28 @@ date_1_svc(long *argp, struct svc_req *rqstp)
 double *
 cpu_usage_1_svc(void *argp, struct svc_req *rqstp)
 {
-	static double  result;
+  long double uptimeMeasurement1, uptimeMeasurement2, idleTimeMeasurement1, idleTimeMeasurement2;
+  static double totalIdleTime, totalUptime, totalUtilTime, percent;
 
-	/*
-	 * insert server code here
-	 */
+  long number_of_processors = sysconf(_SC_NPROCESSORS_ONLN);
 
-	return &result;
+  FILE* file = fopen("/proc/uptime", "r");
+  fscanf(file, "%Lf %Lf ", &uptimeMeasurement1, &idleTimeMeasurement1);
+  fclose(file);
+
+  sleep(2);
+
+  file = fopen("/proc/uptime", "r");
+  fscanf(file, "%Lf %Lf ", &uptimeMeasurement2, &idleTimeMeasurement2);
+  fclose(file);
+
+  totalIdleTime =  (idleTimeMeasurement2 / number_of_processors) - (idleTimeMeasurement1 / number_of_processors);
+  totalUptime = uptimeMeasurement2 - uptimeMeasurement1;
+  totalUtilTime = totalIdleTime / totalUptime;
+  totalUtilTime*=100;
+  percent = 100 - totalUtilTime;
+
+  return &percent;
 }
 
 double *
