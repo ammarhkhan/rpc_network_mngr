@@ -92,6 +92,8 @@ network_mngr_prog_1(char *host)
 	char *load_procs_per_min_1_arg;
 	system_statistics  *result_6;
 	char *get_current_system_stats_1_arg;
+	long    response;  /* user response                           */
+
 
 #ifndef	DEBUG
 	clnt = clnt_create (host, NETWORK_MNGR_PROG, NETWORK_MNGR, "udp");
@@ -101,30 +103,26 @@ network_mngr_prog_1(char *host)
 	}
 #endif	/* DEBUG */
 
-	result_1 = user_logins_1((void*)&user_logins_1_arg, clnt);
-	if (result_1 == (char **) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-	result_2 = date_1(&date_1_arg, clnt);
-	if (result_2 == (char **) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-	result_3 = cpu_usage_1((void*)&cpu_usage_1_arg, clnt);
-	if (result_3 == (double *) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-	result_4 = mem_usage_1((void*)&mem_usage_1_arg, clnt);
-	if (result_4 == (double *) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-	result_5 = load_procs_per_min_1((void*)&load_procs_per_min_1_arg, clnt);
-	if (result_5 == (double *) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-	result_6 = get_current_system_stats_1((void*)&get_current_system_stats_1_arg, clnt);
-	if (result_6 == (system_statistics *) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
+  response = get_response();
+  while(response!=7)
+  {
+    switch(response)
+    {
+      case 1: case 2: case 3:
+        printDate(clnt, &response);
+      break;
+      case 4:
+        printCpuUsage(clnt);
+      break;
+      case 5:
+        printMemoryUsage(clnt);
+      break;
+      case 6:
+        printLocsPerMin(clnt);
+      break;
+    }
+    response = get_response();
+  }
 #ifndef	DEBUG
 	clnt_destroy (clnt);
 #endif	 /* DEBUG */
