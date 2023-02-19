@@ -5,6 +5,7 @@
  */
 
 #include "network_mngr.h"
+#include<time.h>
 
 #define MAX_LEN 100
 
